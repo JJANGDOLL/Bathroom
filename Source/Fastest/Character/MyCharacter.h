@@ -15,6 +15,9 @@ public:
 	// Sets default values for this character's properties
 	AMyCharacter();
 
+	UPROPERTY(EditInstanceOnly, Category = Debug)
+	bool bDebug = false;
+
 	UPROPERTY(VisibleInstanceOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
@@ -26,6 +29,7 @@ protected:
 
 	void MoveLeft(float Value);
 
+	void FocusedActorClick();
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,4 +42,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	AActor* FocusedActor;
 };
