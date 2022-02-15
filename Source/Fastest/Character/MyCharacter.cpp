@@ -1,15 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#define __DEV_DEBUG__
+
+#ifdef __DEV_DEBUG__
+#include "DrawDebugHelpers.h"
+#endif
 
 #include "MyCharacter.h"
+#include "Fastest.h"
 #include "GameFramework/PlayerInput.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
-// Sets default values
 AMyCharacter::AMyCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 80.f;
+	CameraBoom->bUsePawnControlRotation = true;
+
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
+	FollowCamera->bUsePawnControlRotation = false; 
 }
 
 void AMyCharacter::MoveForward(float Value)
@@ -39,13 +55,14 @@ void AMyCharacter::MoveLeft(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+
+
 }
 
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -53,6 +70,25 @@ void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FHitResult hitResult;
+
+	// CheckLineTrace
+	if(GetWorld()->LineTraceSingleByChannel(hitResult,\
+		FollowCamera->GetComponentLocation(), \
+		FollowCamera->GetComponentLocation() + FollowCamera->GetForwardVector() * 300, \
+		ECollisionChannel::ECC_Visibility))
+	{
+		MLCGLOG(Display, TEXT("%s"), *hitResult.GetActor()->GetName());
+	}
+	else
+	{
+		MLCGLOG(Display, TEXT("None"));
+	}
+#ifdef __DEV_DEBUG__
+	DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(), FollowCamera->GetComponentLocation() + FollowCamera->GetForwardVector() * 300, FColor::Red, false, 0.5f, 10.f);
+#endif
+
+	//
 }
 
 // Called to bind functionality to input
