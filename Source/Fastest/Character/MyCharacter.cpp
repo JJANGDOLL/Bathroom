@@ -53,6 +53,7 @@ void AMyCharacter::Tick(float DeltaTime)
 			IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
 			interactObject->OnFocused();
 		}
+
 #ifdef __DEV_DEBUG__
 		if(bDebug)
 		{
