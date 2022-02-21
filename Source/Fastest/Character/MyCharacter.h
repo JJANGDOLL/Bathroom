@@ -24,12 +24,24 @@ public:
 	UPROPERTY(VisibleInstanceOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	APlayerController* PlayerController;
+
+	FVector2D ViewportSize;
+	FVector2D ViewportCenter;
+
+	bool bZoom = false;
+
+
+	virtual void AddControllerPitchInput(float Val) override;
+	virtual void AddControllerYawInput(float Val) override;
+
 protected:
 	void MoveForward(float Value);
-
 	void MoveLeft(float Value);
 
 	void FocusedActorClick();
+	void UnfocusedActorClick();
+	void ResetFocusedActorRot();
 
 protected:
 	// Called when the game starts or when spawned

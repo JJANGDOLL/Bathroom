@@ -24,4 +24,6 @@ class FASTEST_API IInteractable
 public:
 	virtual void OnFocused() = 0;
 	virtual void OffFocused() = 0;
+	virtual void ZoomIn(FVector ScreenCenter) = 0;
+	virtual void ZoomOut() = 0;
 };

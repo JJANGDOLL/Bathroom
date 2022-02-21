@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Interfaces/Interactable.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AMyCharacter::AMyCharacter()
 {
@@ -23,10 +24,35 @@ AMyCharacter::AMyCharacter()
 	FollowCamera->bUsePawnControlRotation = false; 
 }
 
+void AMyCharacter::AddControllerPitchInput(float Val)
+{
+	if(!bZoom)
+		Super::AddControllerPitchInput(Val);
+	else
+	{
+		FocusedActor->AddActorLocalRotation(FQuat(FRotator(Val, 0, 0)));
+	}
+}
+
+void AMyCharacter::AddControllerYawInput(float Val)
+{
+	if(!bZoom)
+		Super::AddControllerYawInput(Val);
+	else
+	{
+		FocusedActor->AddActorLocalRotation(FQuat(FRotator(0, Val, 0)));
+	}
+}
+
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+
+	PlayerController = Cast<APlayerController>(GetController());
 }
 
 // Called every frame
@@ -34,54 +60,105 @@ void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FHitResult hitResult;
-
-	// CheckLineTrace
-	bool bHitRet = GetWorld()->LineTraceSingleByChannel(hitResult, \
-		FollowCamera->GetComponentLocation(), \
-		FollowCamera->GetComponentLocation() + FollowCamera->GetForwardVector() * 300, \
-		ECollisionChannel::ECC_Visibility);
-
-	if(!FocusedActor && bHitRet)
+	if(!bZoom)
 	{
-		AActor* hittedActor = hitResult.GetActor();
-		UClass* ActorClass = hittedActor->GetClass();
+		FHitResult hitResult;
 
-		if(ActorClass->ImplementsInterface(UInteractable::StaticClass()))
+		// CheckLineTrace
+		FVector worldLoc;
+		FVector worldDir;
+		PlayerController->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, worldLoc, worldDir);
+
+		bool bHitRet = GetWorld()->LineTraceSingleByChannel(hitResult, \
+			worldLoc, \
+			worldLoc + worldDir * 300, \
+			ECollisionChannel::ECC_Visibility);
+
+
+		if(!FocusedActor)
 		{
-			FocusedActor = hittedActor;
-			IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
-			interactObject->OnFocused();
-		}
+			if(bHitRet)
+			{
+				AActor* hittedActor = hitResult.GetActor();
+				UClass* ActorClass = hittedActor->GetClass();
+
+				if(ActorClass->ImplementsInterface(UInteractable::StaticClass()))
+				{
+					FocusedActor = hittedActor;
+					IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
+					interactObject->OnFocused();
+				}
 
 #ifdef __DEV_DEBUG__
-		if(bDebug)
-		{
-			MLCGLOG(Display, TEXT("%s"), *hitResult.GetActor()->GetName());
+				if(bDebug)
+				{
+					MLCGLOG(Display, TEXT("%s"), *hitResult.GetActor()->GetName());
+				}
+#endif
+			}
+			else
+			{
+
+			}
+
 		}
+		else if(!!FocusedActor)
+		{
+			if(bHitRet)
+			{
+				AActor* hittedActor = hitResult.GetActor();
+				UClass* ActorClass = hittedActor->GetClass();
+
+				if(ActorClass->ImplementsInterface(UInteractable::StaticClass()))
+				{
+					if(FocusedActor != hittedActor)
+					{
+						IInteractable* interactObject;
+						interactObject = Cast<IInteractable>(FocusedActor);
+						interactObject->OffFocused();
+
+						FocusedActor = hitResult.GetActor();
+						interactObject = Cast<IInteractable>(FocusedActor);
+						interactObject->OnFocused();
+					}
+				}
+				else
+				{
+					ActorClass = FocusedActor->GetClass();
+
+					if(ActorClass->ImplementsInterface(UInteractable::StaticClass()))
+					{
+						IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
+						interactObject->OffFocused();
+					}
+					FocusedActor = NULL;
+				}
+			}
+			else
+			{
+				UClass* ActorClass = FocusedActor->GetClass();
+
+				if(ActorClass->ImplementsInterface(UInteractable::StaticClass()))
+				{
+					IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
+					interactObject->OffFocused();
+				}
+				FocusedActor = NULL;
+
+#ifdef __DEV_DEBUG__
+				if(bDebug)
+				{
+					MLCGLOG(Display, TEXT("None"));
+				}
+#endif
+			}
+
+		}
+#ifdef __DEV_DEBUG__
+		DrawDebugLine(GetWorld(), worldLoc, worldLoc + worldDir * 300, FColor::Red, false, 0.5f, 10.f);
 #endif
 	}
-	else if(!!FocusedActor&& !bHitRet)
-	{
-		UClass* ActorClass = FocusedActor->GetClass();
 
-		if(ActorClass->ImplementsInterface(UInteractable::StaticClass()))
-		{
-			IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
-			interactObject->OffFocused();
-		}
-		FocusedActor = NULL;
-
-#ifdef __DEV_DEBUG__
-		if(bDebug)
-		{
-			MLCGLOG(Display, TEXT("None"));
-		}
-#endif
-	}
-#ifdef __DEV_DEBUG__
-	DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(), FollowCamera->GetComponentLocation() + FollowCamera->GetForwardVector() * 300, FColor::Red, false, 0.5f, 10.f);
-#endif
 }
 
 // Called to bind functionality to input
@@ -99,7 +176,9 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	FInputAxisKeyMapping turnKey("Turn", EKeys::MouseX, 1.f);
 
 	FInputActionKeyMapping jumpKey("Jump", EKeys::SpaceBar, 0, 0, 0, 0);
-	FInputActionKeyMapping clickKey("Click", EKeys::LeftMouseButton, 0, 0, 0, 0);
+	FInputActionKeyMapping lClickKey("LClick", EKeys::LeftMouseButton, 0, 0, 0, 0);
+	FInputActionKeyMapping rClickKey("RClick", EKeys::RightMouseButton, 0, 0, 0, 0);
+	FInputActionKeyMapping resetKey("Reset", EKeys::R, 0, 0, 0, 0);
 
 	PlayerInputComponent->BindAxis("Forward", this, &AMyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Back", this, &AMyCharacter::MoveForward);
@@ -109,7 +188,9 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("Turn", this, &AMyCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMyCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMyCharacter::StopJumping);
-	PlayerInputComponent->BindAction("Click", IE_Pressed, this, &AMyCharacter::FocusedActorClick);
+	PlayerInputComponent->BindAction("LClick", IE_Pressed, this, &AMyCharacter::FocusedActorClick);
+	PlayerInputComponent->BindAction("RClick", IE_Pressed, this, &AMyCharacter::UnfocusedActorClick);
+	PlayerInputComponent->BindAction("Reset", IE_Pressed, this, &AMyCharacter::ResetFocusedActorRot);
 
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(forwardKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(backKey);
@@ -118,12 +199,14 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(lookupKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(turnKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(jumpKey);
-	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(clickKey);
+	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(lClickKey);
+	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(rClickKey);
+	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(resetKey);
 }
 
 void AMyCharacter::MoveForward(float Value)
 {
-	if((Controller != NULL) && (Value != 0.0f))
+	if((Controller != NULL) && (Value != 0.0f) && (!bZoom))
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -137,7 +220,7 @@ void AMyCharacter::MoveForward(float Value)
 
 void AMyCharacter::MoveLeft(float Value)
 {
-	if((Controller != NULL) && (Value != 0.0f))
+	if((Controller != NULL) && (Value != 0.0f) && (!bZoom))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -148,8 +231,6 @@ void AMyCharacter::MoveLeft(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
-
-
 }
 
 void AMyCharacter::FocusedActorClick()
@@ -158,4 +239,35 @@ void AMyCharacter::FocusedActorClick()
 #ifdef __DEV_DEBUG__
     MLCGLOG(Display, TEXT("%s"), *FocusedActor->GetName());
 #endif
+
+
+	FRotator newRot = UKismetMathLibrary::FindLookAtRotation(FocusedActor->GetActorLocation(), GetActorLocation());
+
+	// CheckLineTrace
+	FVector worldLoc;
+	FVector worldDir;
+	PlayerController->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, worldLoc, worldDir);
+
+	IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
+
+	interactObject->ZoomIn(worldLoc + worldDir * 100);
+	bZoom = true;
 }
+
+void AMyCharacter::UnfocusedActorClick()
+{
+	if(!bZoom) return;
+
+	IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
+
+	interactObject->ZoomOut();
+	bZoom = false;
+}
+
+void AMyCharacter::ResetFocusedActorRot()
+{
+	if(!bZoom) return;
+
+	FocusedActor->SetActorRotation(FQuat(FRotator(0, 0, 0)));
+}
+
