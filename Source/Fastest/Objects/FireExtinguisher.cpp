@@ -2,14 +2,6 @@
 
 #include "FireExtinguisher.h"
 
-#include "Fastest.h"
-
-#include "Components/StaticMeshComponent.h"
-#include "Components/PrimitiveComponent.h"
-#include "Components/SceneComponent.h"
-#include "GameFramework/RotatingMovementComponent.h"
-#include "DrawDebugHelpers.h"
-
 // Sets default values
 AFireExtinguisher::AFireExtinguisher()
 	: AInteractObjectBase()
