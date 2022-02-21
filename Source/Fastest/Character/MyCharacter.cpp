@@ -84,6 +84,7 @@ void AMyCharacter::Tick(float DeltaTime)
 
 				if(ActorClass->ImplementsInterface(UInteractable::StaticClass()))
 				{
+					MLCGLOG_S(Display);
 					FocusedActor = hittedActor;
 					IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
 					interactObject->OnFocused();
@@ -92,7 +93,7 @@ void AMyCharacter::Tick(float DeltaTime)
 #ifdef __DEV_DEBUG__
 				if(bDebug)
 				{
-					MLCGLOG(Display, TEXT("%s"), *hitResult.GetActor()->GetName());
+					MLCGLOG(Display, TEXT("!FA bHitRet %s"), *hitResult.GetActor()->GetName());
 				}
 #endif
 			}

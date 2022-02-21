@@ -13,8 +13,6 @@
 // Sets default values
 AFireExtinguisher::AFireExtinguisher()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
 	CeilPoint = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CEIL"));
 	RootComponent = CeilPoint;
 
