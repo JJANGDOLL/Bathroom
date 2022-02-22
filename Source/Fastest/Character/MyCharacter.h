@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/TimelineComponent.h"
 #include "MyCharacter.generated.h"
 
 UCLASS()
@@ -31,13 +32,21 @@ public:
 
 	bool bZoom = false;
 
-
 	virtual void AddControllerPitchInput(float Val) override;
 	virtual void AddControllerYawInput(float Val) override;
+
+	UFUNCTION()
+	void SetCrouch(float Value);
+
+	UCurveFloat* CrouchCurve;
+	FTimeline CrouchTimeline;
+	float CourchTimelineLength;
+	bool bCrouched = false;
 
 protected:
 	void MoveForward(float Value);
 	void MoveLeft(float Value);
+	void ToggleCrouch();
 
 	void FocusedActorClick();
 	void UnfocusedActorClick();

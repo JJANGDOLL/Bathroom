@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Interfaces/Interactable.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/CapsuleComponent.h"
 
 AMyCharacter::AMyCharacter()
 {
@@ -16,12 +17,21 @@ AMyCharacter::AMyCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 80.f;
+	CameraBoom->TargetArmLength = 10.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
 	FollowCamera->bUsePawnControlRotation = false; 
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> CF_CROUCH(TEXT("CurveFloat'/Game/Timeline/TL_Crouch.TL_Crouch'"));
+	if(CF_CROUCH.Succeeded())
+	{
+		CrouchCurve = CF_CROUCH.Object;
+		MLCGLOG_S(Display);
+	}
+
+	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 }
 
 void AMyCharacter::AddControllerPitchInput(float Val)
@@ -44,6 +54,14 @@ void AMyCharacter::AddControllerYawInput(float Val)
 	}
 }
 
+void AMyCharacter::SetCrouch(float Value)
+{
+	//MLCGLOG(Display, TEXT("%f"), Value);
+	float halfHeight = UKismetMathLibrary::Lerp(88.f, 33.f, Value);
+
+	GetCapsuleComponent()->SetCapsuleHalfHeight(halfHeight);
+}
+
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
@@ -53,6 +71,14 @@ void AMyCharacter::BeginPlay()
 	ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
 
 	PlayerController = Cast<APlayerController>(GetController());
+
+	if(CrouchCurve)
+	{
+		FOnTimelineFloat CrouchCallback;
+
+		CrouchCallback.BindUFunction(this, FName("SetCrouch"));
+		CrouchTimeline.AddInterpFloat(CrouchCurve, CrouchCallback);
+	}
 }
 
 // Called every frame
@@ -93,7 +119,6 @@ void AMyCharacter::Tick(float DeltaTime)
 #ifdef __DEV_DEBUG__
 				if(bDebug)
 				{
-					MLCGLOG(Display, TEXT("!FA bHitRet %s"), *hitResult.GetActor()->GetName());
 				}
 #endif
 			}
@@ -160,6 +185,7 @@ void AMyCharacter::Tick(float DeltaTime)
 #endif
 	}
 
+	CrouchTimeline.TickTimeline(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -180,6 +206,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	FInputActionKeyMapping lClickKey("LClick", EKeys::LeftMouseButton, 0, 0, 0, 0);
 	FInputActionKeyMapping rClickKey("RClick", EKeys::RightMouseButton, 0, 0, 0, 0);
 	FInputActionKeyMapping resetKey("Reset", EKeys::R, 0, 0, 0, 0);
+	FInputActionKeyMapping crouchKey("Crouch", EKeys::C, 0, 0, 0, 0);
 
 	PlayerInputComponent->BindAxis("Forward", this, &AMyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Back", this, &AMyCharacter::MoveForward);
@@ -192,6 +219,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("LClick", IE_Pressed, this, &AMyCharacter::FocusedActorClick);
 	PlayerInputComponent->BindAction("RClick", IE_Pressed, this, &AMyCharacter::UnfocusedActorClick);
 	PlayerInputComponent->BindAction("Reset", IE_Pressed, this, &AMyCharacter::ResetFocusedActorRot);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMyCharacter::ToggleCrouch);
+
 
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(forwardKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(backKey);
@@ -203,6 +232,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(lClickKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(rClickKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(resetKey);
+	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(crouchKey);
 }
 
 void AMyCharacter::MoveForward(float Value)
@@ -234,6 +264,27 @@ void AMyCharacter::MoveLeft(float Value)
 	}
 }
 
+void AMyCharacter::ToggleCrouch()
+{
+	if(bZoom) return;
+
+	if(bCrouched)
+	{
+		MLCGLOG_S(Display);
+
+		bCrouched = false;
+		CrouchTimeline.Reverse();
+	}
+	else
+	{
+		MLCGLOG_S(Display);
+
+		bCrouched = true;
+		CrouchTimeline.PlayFromStart();
+	}
+
+}
+
 void AMyCharacter::FocusedActorClick()
 {
 	if(!::IsValid(FocusedActor)) return;
@@ -251,7 +302,7 @@ void AMyCharacter::FocusedActorClick()
 
 	IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
 
-	interactObject->ZoomIn(worldLoc + worldDir * 100);
+	interactObject->ZoomIn(worldLoc + worldDir * 75);
 	bZoom = true;
 }
 
