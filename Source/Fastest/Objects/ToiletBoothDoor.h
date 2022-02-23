@@ -3,17 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Objects/InteractObjectBase.h"
+#include "Objects/InteractActObjectBase.h"
 #include "ToiletBoothDoor.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class FASTEST_API AToiletBoothDoor : public AInteractObjectBase
+class FASTEST_API AToiletBoothDoor : public AInteractActObjectBase
 {
 	GENERATED_BODY()
 	
 public:
 	AToiletBoothDoor();
+
+	virtual void OnSelected() override;
+
+private:
+	bool bOpened = false;
 };

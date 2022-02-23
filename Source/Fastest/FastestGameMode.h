@@ -14,6 +14,3 @@ class AFastestGameMode : public AGameModeBase
 public:
 	AFastestGameMode();
 };
-
-
-
