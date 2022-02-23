@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/Interactable.h"
+#include "Enums/FastestTypes.h"
 #include "InteractObjectBase.generated.h"
 
 UCLASS()
@@ -29,19 +30,19 @@ public:
 	FRotator OriginRotator;
 	FVector Origin;
 	FVector BoxExtend;
+	FVector MeshSize;
 
 	ECollisionEnabled::Type OriginCollision;
-
+	EObjectInteract::Type InteractType = EObjectInteract::NONE;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-
 public:
 	virtual void OffFocused() override;
 	virtual void OnFocused() override;
-	virtual void ZoomIn(FVector ScreenCenter) override;
-	virtual void ZoomOut() override;
-
+	virtual void OnSelected() override;
+	virtual void UnSelected() override;
+	virtual EObjectInteract::Type GetInteractObjectType() override;
 };

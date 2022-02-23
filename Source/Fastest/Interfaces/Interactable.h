@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Enums/FastestTypes.h"
 #include "Interactable.generated.h"
 
 // This class does not need to be modified.
@@ -24,6 +25,7 @@ class FASTEST_API IInteractable
 public:
 	virtual void OnFocused() = 0;
 	virtual void OffFocused() = 0;
-	virtual void ZoomIn(FVector ScreenCenter) = 0;
-	virtual void ZoomOut() = 0;
+	virtual void OnSelected() = 0;
+	virtual void UnSelected() = 0;
+	virtual EObjectInteract::Type GetInteractObjectType() = 0;
 };

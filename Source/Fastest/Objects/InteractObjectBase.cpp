@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Fastest.h"
 #include "InteractObjectBase.h"
 
 // Sets default values
@@ -18,7 +19,7 @@ AInteractObjectBase::AInteractObjectBase()
 	if(SM_FE.Succeeded())
 	{
 		Mesh->SetStaticMesh(SM_FE.Object);
-		FVector MeshSize = Mesh->GetStaticMesh()->GetBoundingBox().GetSize();
+		MeshSize = Mesh->GetStaticMesh()->GetBoundingBox().GetSize();
 		CenterPoint->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
 		OriginCollision = Mesh->GetCollisionEnabled();
 		//FEMesh->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
@@ -47,17 +48,32 @@ void AInteractObjectBase::OnFocused()
 	Mesh->SetRenderCustomDepth(true);
 }
 
-void AInteractObjectBase::ZoomIn(FVector ScreenCenter)
+//void AInteractObjectBase::ZoomIn(FVector ScreenCenter)
+//{
+//	OffFocused();
+//	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+//	SetActorLocation(FVector(ScreenCenter.X, ScreenCenter.Y, ScreenCenter.Z));
+//}
+//
+//void AInteractObjectBase::ZoomOut()
+//{
+//	OnFocused();
+//	Mesh->SetCollisionEnabled(OriginCollision);
+//	SetActorLocationAndRotation(OriginLocation, OriginRotator);
+//}
+
+void AInteractObjectBase::OnSelected()
 {
-	OffFocused();
-	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	SetActorLocation(FVector(ScreenCenter.X, ScreenCenter.Y, ScreenCenter.Z));
+	MLCGLOG_S(Warning);
 }
 
-void AInteractObjectBase::ZoomOut()
+void AInteractObjectBase::UnSelected()
 {
-	OnFocused();
-	Mesh->SetCollisionEnabled(OriginCollision);
-	SetActorLocationAndRotation(OriginLocation, OriginRotator);
+	MLCGLOG_S(Warning);
+}
+
+EObjectInteract::Type AInteractObjectBase::GetInteractObjectType()
+{
+	return InteractType;
 }
 

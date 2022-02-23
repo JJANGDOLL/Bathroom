@@ -9,6 +9,7 @@
 #include "Interfaces/Interactable.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/CapsuleComponent.h"
+#include "Enums/FastestTypes.h"
 
 AMyCharacter::AMyCharacter()
 {
@@ -32,6 +33,8 @@ AMyCharacter::AMyCharacter()
 	}
 
 	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
+
+	GetCapsuleComponent()->SetCapsuleRadius(17.f);
 }
 
 void AMyCharacter::AddControllerPitchInput(float Val)
@@ -99,7 +102,6 @@ void AMyCharacter::Tick(float DeltaTime)
 			worldLoc, \
 			worldLoc + worldDir * 300, \
 			ECollisionChannel::ECC_Visibility);
-
 
 		if(!FocusedActor)
 		{
@@ -292,18 +294,25 @@ void AMyCharacter::FocusedActorClick()
     MLCGLOG(Display, TEXT("%s"), *FocusedActor->GetName());
 #endif
 
-
-	FRotator newRot = UKismetMathLibrary::FindLookAtRotation(FocusedActor->GetActorLocation(), GetActorLocation());
-
-	// CheckLineTrace
-	FVector worldLoc;
-	FVector worldDir;
-	PlayerController->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, worldLoc, worldDir);
-
+	
 	IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
 
-	interactObject->ZoomIn(worldLoc + worldDir * 75);
-	bZoom = true;
+
+
+	switch(interactObject->GetInteractObjectType())
+	{
+		case EObjectInteract::NONE:
+			break;
+		case EObjectInteract::ZOOM:
+			interactObject->OnSelected();
+			bZoom = true;
+			break;
+		case EObjectInteract::ACT:
+			interactObject->OnSelected();
+			break;
+	}
+
+
 }
 
 void AMyCharacter::UnfocusedActorClick()
@@ -311,9 +320,22 @@ void AMyCharacter::UnfocusedActorClick()
 	if(!bZoom) return;
 
 	IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
+	switch(interactObject->GetInteractObjectType())
+	{
+		default:
+			break;
+		case EObjectInteract::NONE:
+			break;
+		case EObjectInteract::ZOOM:
+			interactObject->UnSelected();
+			bZoom = false;
+			break;
+		case EObjectInteract::ACT:
+			interactObject->UnSelected();
+			break;
+	}
 
-	interactObject->ZoomOut();
-	bZoom = false;
+
 }
 
 void AMyCharacter::ResetFocusedActorRot()

@@ -27,6 +27,8 @@ public:
 
 	APlayerController* PlayerController;
 
+	FORCEINLINE FVector2D GetViewportCenter() { return ViewportCenter; };
+
 	FVector2D ViewportSize;
 	FVector2D ViewportCenter;
 
@@ -41,7 +43,7 @@ public:
 	UCurveFloat* CrouchCurve;
 	FTimeline CrouchTimeline;
 	float CourchTimelineLength;
-	bool bCrouched = false;
+	bool bCrouched = false; 
 
 protected:
 	void MoveForward(float Value);
