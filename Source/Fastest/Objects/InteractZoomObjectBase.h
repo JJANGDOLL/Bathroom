@@ -20,10 +20,14 @@ public:
 	virtual void OnSelected() override;
 	virtual void UnSelected() override;
 
-	UPROPERTY(EditInstanceOnly)
-	float Test;
+	virtual void SmoothInteract(float Value) override;
+
+	FVector ViewLocation;
 
 protected:
-	void ZoomIn();
-	void ZoomOut();
+	void ZoomIn(float Value);
+	void ZoomOut(float Value);
+
+	virtual void BeginPlay() override;
+
 };

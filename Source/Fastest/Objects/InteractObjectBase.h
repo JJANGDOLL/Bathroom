@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Interfaces/Interactable.h"
 #include "Enums/FastestTypes.h"
+#include "Components/TimelineComponent.h"
 #include "InteractObjectBase.generated.h"
 
 UCLASS()
@@ -35,6 +36,15 @@ public:
 	ECollisionEnabled::Type OriginCollision;
 	EObjectInteract::Type InteractType = EObjectInteract::NONE;
 
+	UFUNCTION()
+	virtual void SmoothInteract(float Value);
+
+	UCurveFloat* SmoothCurve;
+	FTimeline SmoothTimeline;
+	float SmoothTimelineLength;
+
+	bool bSwitch = false;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -45,4 +55,7 @@ public:
 	virtual void OnSelected() override;
 	virtual void UnSelected() override;
 	virtual EObjectInteract::Type GetInteractObjectType() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
 };

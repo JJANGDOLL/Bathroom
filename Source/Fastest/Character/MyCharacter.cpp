@@ -29,7 +29,6 @@ AMyCharacter::AMyCharacter()
 	if(CF_CROUCH.Succeeded())
 	{
 		CrouchCurve = CF_CROUCH.Object;
-		MLCGLOG_S(Display);
 	}
 
 	GetCharacterMovement()->MaxWalkSpeed = 200.0f;

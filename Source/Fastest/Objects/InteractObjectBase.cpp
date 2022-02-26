@@ -4,9 +4,13 @@
 #include "Fastest.h"
 #include "InteractObjectBase.h"
 
+//CurveFloat'/Game/Timeline/TL_Zoom.TL_Zoom'
+
 // Sets default values
 AInteractObjectBase::AInteractObjectBase()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	CeilPoint = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CEIL"));
 	RootComponent = CeilPoint;
 
@@ -25,6 +29,17 @@ AInteractObjectBase::AInteractObjectBase()
 		//FEMesh->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
 		//MLCGLOG(Display, TEXT("%s"), *temp.GetSize().ToString());
 	}
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> CF_ZOOM(TEXT("CurveFloat'/Game/Timeline/TL_Zoom.TL_Zoom'"));
+	if(CF_ZOOM.Succeeded())
+	{
+		SmoothCurve = CF_ZOOM.Object;
+	}
+}
+
+void AInteractObjectBase::SmoothInteract(float Value)
+{
+	MLCGLOG_S(Display);
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +50,15 @@ void AInteractObjectBase::BeginPlay()
 	OriginLocation = GetActorLocation();
 	OriginRotator = GetActorRotation();
 	GetActorBounds(false, Origin, BoxExtend);
+
+	if(SmoothCurve)
+	{
+		MLCGLOG_S(Display);
+		FOnTimelineFloat interactCallback;
+
+		interactCallback.BindUFunction(this, FName("SmoothInteract"));
+		SmoothTimeline.AddInterpFloat(SmoothCurve, interactCallback);
+	}
 }
 
 
@@ -75,5 +99,12 @@ void AInteractObjectBase::UnSelected()
 EObjectInteract::Type AInteractObjectBase::GetInteractObjectType()
 {
 	return InteractType;
+}
+
+void AInteractObjectBase::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+	SmoothTimeline.TickTimeline(DeltaSeconds);
 }
 

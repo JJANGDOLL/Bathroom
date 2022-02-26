@@ -4,6 +4,8 @@
 #include "Fastest.h"
 #include "InteractZoomObjectBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Math/UnrealMathVectorCommon.h"
 
 AInteractZoomObjectBase::AInteractZoomObjectBase()
     : AInteractObjectBase()
@@ -13,20 +15,7 @@ AInteractZoomObjectBase::AInteractZoomObjectBase()
 
 void AInteractZoomObjectBase::OnSelected()
 {
-    ZoomIn();
-}
-
-void AInteractZoomObjectBase::UnSelected()
-{
-    ZoomOut();
-}
-
-void AInteractZoomObjectBase::ZoomIn()
-{
     OffFocused();
-    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-    MLCGLOG(Display, TEXT("%s"), *MeshSize.ToString());
 
     FVector2D ViewportSize;
     FVector2D ViewportCenter;
@@ -46,15 +35,36 @@ void AInteractZoomObjectBase::ZoomIn()
 
     //MLCGLOG(Display, TEXT("%f"), meshVolumeSize);
 
-    FVector ViewLocation = worldLoc + worldDir * (30 + (20 * meshVolumeSize));
+    ViewLocation = worldLoc + worldDir * (30 + (20 * meshVolumeSize));
 
-    SetActorLocation(ViewLocation);
+    SmoothTimeline.PlayFromStart();
 }
 
-void AInteractZoomObjectBase::ZoomOut()
+void AInteractZoomObjectBase::UnSelected()
 {
     OnFocused();
+    SmoothTimeline.Reverse();
+}
+
+void AInteractZoomObjectBase::SmoothInteract(float Value) 
+{
+    MLCGLOG_S(Display);
+    SetActorLocationAndRotation(FMath::Lerp(OriginLocation, ViewLocation, Value), FMath::Lerp(OriginRotator, GetActorRotation(), Value));
+}
+
+void AInteractZoomObjectBase::ZoomIn(float Value)
+{
+    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AInteractZoomObjectBase::ZoomOut(float Value)
+{
     Mesh->SetCollisionEnabled(OriginCollision);
     SetActorLocationAndRotation(OriginLocation, OriginRotator);
+}
+
+void AInteractZoomObjectBase::BeginPlay()
+{
+    Super::BeginPlay();
 }
 
