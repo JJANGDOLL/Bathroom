@@ -35,7 +35,7 @@ void AInteractZoomObjectBase::OnSelected()
 
     //MLCGLOG(Display, TEXT("%f"), meshVolumeSize);
 
-    ViewLocation = worldLoc + worldDir * (30 + (20 * meshVolumeSize));
+    ViewLocation = worldLoc + worldDir * (30 + (15 * meshVolumeSize));
 
     SmoothTimeline.PlayFromStart();
 }

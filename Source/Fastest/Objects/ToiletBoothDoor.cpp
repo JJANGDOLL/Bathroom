@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Fastest.h"
 #include "ToiletBoothDoor.h"
 
 AToiletBoothDoor::AToiletBoothDoor()
@@ -18,16 +19,28 @@ AToiletBoothDoor::AToiletBoothDoor()
 
 void AToiletBoothDoor::OnSelected()
 {
+	MLCGLOG_S(Display);
 	if(bOpened)
 	{
-		FRotator baseRotator = GetActorRotation();
-		SetActorRotation(baseRotator + FRotator(0, -90.f, 0));
 		bOpened = false;
+		SmoothTimeline.Reverse();
 	}
 	else
 	{
-		FRotator baseRotator = GetActorRotation();
-		SetActorRotation(baseRotator + FRotator(0, +90.f, 0));
 		bOpened = true;
+		SmoothTimeline.PlayFromStart();
 	}
+}
+
+void AToiletBoothDoor::SmoothInteract(float Value)
+{
+	SetActorRotation(FMath::Lerp(OriginRotator, OpenRotator, Value));
+}
+
+void AToiletBoothDoor::BeginPlay()
+{
+    Super::BeginPlay();
+
+	OriginRotator = GetActorRotation();
+	OpenRotator = OriginRotator + FRotator(0, 90.f, 0);
 }

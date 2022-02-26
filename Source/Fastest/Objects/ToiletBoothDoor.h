@@ -16,6 +16,14 @@ public:
 
 	virtual void OnSelected() override;
 
+
+	virtual void SmoothInteract(float Value) override;
+
 private:
 	bool bOpened = false;
+	FRotator OpenRotator;
+
+protected:
+	virtual void BeginPlay() override;
+
 };
