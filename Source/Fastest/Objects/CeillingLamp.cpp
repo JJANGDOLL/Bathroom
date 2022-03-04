@@ -33,7 +33,6 @@ ACeillingLamp::ACeillingLamp()
 
 void ACeillingLamp::BlinkLamp(float Value)
 {
-	MLCGLOG(Display, TEXT("%f"), Value);
 	Light->SetIntensity(2500.f * Value);
 }
 
@@ -50,7 +49,6 @@ void ACeillingLamp::BeginPlay()
 
 	if(BlinkCurve)
 	{
-		MLCGLOG_S(Display);
 		FOnTimelineFloat blinkCallback;
 
 		blinkCallback.BindUFunction(this, FName("BlinkLamp"));

@@ -45,6 +45,10 @@ public:
 	float CourchTimelineLength;
 	bool bCrouched = false; 
 
+	class APlayerCameraManager* CameraManager;
+
+	virtual void PossessedBy(AController* NewController) override;
+
 protected:
 	void MoveForward(float Value);
 	void MoveLeft(float Value);

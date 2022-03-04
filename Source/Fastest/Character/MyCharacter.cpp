@@ -10,6 +10,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Enums/FastestTypes.h"
+#include "Kismet/GameplayStatics.h"
+#include "Camera/PlayerCameraManager.h"
 
 AMyCharacter::AMyCharacter()
 {
@@ -64,6 +66,11 @@ void AMyCharacter::SetCrouch(float Value)
 	GetCapsuleComponent()->SetCapsuleHalfHeight(halfHeight);
 }
 
+void AMyCharacter::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+}
+
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
@@ -71,6 +78,8 @@ void AMyCharacter::BeginPlay()
 
 	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+
+	CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 
 	PlayerController = Cast<APlayerController>(GetController());
 
@@ -93,13 +102,14 @@ void AMyCharacter::Tick(float DeltaTime)
 		FHitResult hitResult;
 
 		// CheckLineTrace
-		FVector worldLoc;
-		FVector worldDir;
-		PlayerController->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, worldLoc, worldDir);
+		FVector worldLoc = CameraManager->GetCameraLocation();
+		FVector worldDir = CameraManager->GetActorForwardVector();
+
+		//PlayerController->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, worldLoc, worldDir);
 
 		bool bHitRet = GetWorld()->LineTraceSingleByChannel(hitResult, \
 			worldLoc, \
-			worldLoc + worldDir * 300, \
+			worldLoc + worldDir * 200, \
 			ECollisionChannel::ECC_Visibility);
 
 		if(!FocusedActor)

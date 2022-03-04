@@ -48,7 +48,6 @@ void AInteractZoomObjectBase::UnSelected()
 
 void AInteractZoomObjectBase::SmoothInteract(float Value) 
 {
-    MLCGLOG_S(Display);
     SetActorLocationAndRotation(FMath::Lerp(OriginLocation, ViewLocation, Value), FMath::Lerp(OriginRotator, GetActorRotation(), Value));
 }
 
