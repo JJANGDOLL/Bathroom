@@ -26,8 +26,6 @@ AInteractObjectBase::AInteractObjectBase()
 		MeshSize = Mesh->GetStaticMesh()->GetBoundingBox().GetSize();
 		CenterPoint->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
 		OriginCollision = Mesh->GetCollisionEnabled();
-		//FEMesh->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
-		//MLCGLOG(Display, TEXT("%s"), *temp.GetSize().ToString());
 	}
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> CF_ZOOM(TEXT("CurveFloat'/Game/Timeline/TL_Zoom.TL_Zoom'"));
