@@ -16,4 +16,11 @@ class FASTEST_API AMyGameModeBase : public AGameModeBase
 	
 public:
 	AMyGameModeBase();
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	FORCEINLINE float GetPlayedTime() { return PlayedTime; }
+
+private:
+	float PlayedTime = 0.f;
 };

@@ -12,6 +12,16 @@
 /**
  * 
  */
+UENUM()
+namespace EObjectBlink
+{
+	enum Type
+	{
+		NORMAL UMETA(DisplayName = "NORMAL"),
+		CRAZY UMETA(DisplayName = "CRAZY")
+	};
+}
+
 UCLASS()
 class FASTEST_API ACeillingLamp : public AWorldObjectBase, public ISwitch
 {
@@ -29,9 +39,19 @@ public:
 	UPROPERTY(VisibleInstanceOnly, Category=Lamp, Meta = (AllowPrivateAccess = true))
 	bool bSwitch = true;
 
+	UPROPERTY(EditInstanceOnly, Category = Lamp, Meta = (AllowPrivateAccess = true))
+	TEnumAsByte<EObjectBlink::Type> BlinkType = EObjectBlink::NORMAL;
+
 	UCurveFloat* BlinkCurve;
+	UCurveFloat* CrazyBlinkCurve;
+
 	FTimeline BlinkTimeline;
-	float SmoothTimelineLength;
+	FTimeline CrazyBlinkTimeline;
+
+	float TimeSwitchedOn;
+
+	class AMyGameModeBase* gameMode;
+
 
 	UFUNCTION()
 	void BlinkLamp(float Value);

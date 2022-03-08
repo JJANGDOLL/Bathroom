@@ -7,6 +7,8 @@
 #include "Engine/StaticMesh.h"
 #include "Components/PointLightComponent.h"
 #include "Fastest.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameDetail/MyGameModeBase.h"
 
 ACeillingLamp::ACeillingLamp()
 {
@@ -29,6 +31,13 @@ ACeillingLamp::ACeillingLamp()
 	{
 		BlinkCurve = CF_BLINK.Object;
 	}
+
+	//CurveFloat'/Game/Timeline/TL_CrazyBlink.TL_CrazyBlink'
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> CF_CRAZYBLINK(TEXT("CurveFloat'/Game/Timeline/TL_CrazyBlink.TL_CrazyBlink'"));
+	if(CF_CRAZYBLINK.Succeeded())
+	{
+		CrazyBlinkCurve = CF_CRAZYBLINK.Object;
+	}
 }
 
 void ACeillingLamp::BlinkLamp(float Value)
@@ -43,19 +52,30 @@ void ACeillingLamp::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-	BlinkTimeline.TickTimeline(DeltaTime);
+	if(gameMode != nullptr && int(gameMode->GetPlayedTime()) - TimeSwitchedOn > 10)
+	{
+		bOn = false;
+	}
+
+	if(BlinkType == EObjectBlink::NORMAL)
+	{
+		BlinkTimeline.TickTimeline(DeltaTime);
+	}
+	else if(BlinkType == EObjectBlink::CRAZY)
+	{
+		CrazyBlinkTimeline.TickTimeline(DeltaTime);
+	}
 }
 
 void ACeillingLamp::Off()
 {
 	bOn = false;
-	MLCGLOG_S(Display);
 }
 
 void ACeillingLamp::On()
 {
 	bOn = true;
-	MLCGLOG_S(Display);
+	TimeSwitchedOn = gameMode->GetPlayedTime();
 }
 
 void ACeillingLamp::BeginPlay()
@@ -69,8 +89,20 @@ void ACeillingLamp::BeginPlay()
 		blinkCallback.BindUFunction(this, FName("BlinkLamp"));
 		BlinkTimeline.AddInterpFloat(BlinkCurve, blinkCallback);
 		BlinkTimeline.SetLooping(true);
-
 		BlinkTimeline.Play();
 	}
+
+	if(CrazyBlinkCurve)
+	{
+		FOnTimelineFloat blinkCallback;
+
+		blinkCallback.BindUFunction(this, FName("BlinkLamp"));
+		CrazyBlinkTimeline.AddInterpFloat(CrazyBlinkCurve, blinkCallback);
+		CrazyBlinkTimeline.SetLooping(true);
+		CrazyBlinkTimeline.Play();
+	}
+	gameMode = Cast<AMyGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	TimeSwitchedOn = gameMode->GetPlayedTime();
 }
 
