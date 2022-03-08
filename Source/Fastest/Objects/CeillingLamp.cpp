@@ -52,7 +52,12 @@ void ACeillingLamp::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-	if(gameMode != nullptr && int(gameMode->GetPlayedTime()) - TimeSwitchedOn > 10)
+	if(gameMode != nullptr && int(gameMode->GetPlayedTime()) - TimeSwitchedOn > 13)
+	{
+		BlinkType = EObjectBlink::CRAZY;
+	}
+
+	if(gameMode != nullptr && int(gameMode->GetPlayedTime()) - TimeSwitchedOn > 20)
 	{
 		bOn = false;
 	}
@@ -75,6 +80,7 @@ void ACeillingLamp::Off()
 void ACeillingLamp::On()
 {
 	bOn = true;
+	BlinkType = EObjectBlink::NORMAL;
 	TimeSwitchedOn = gameMode->GetPlayedTime();
 }
 

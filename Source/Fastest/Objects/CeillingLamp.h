@@ -47,7 +47,7 @@ public:
 
 	FTimeline BlinkTimeline;
 	FTimeline CrazyBlinkTimeline;
-
+	
 	float TimeSwitchedOn;
 
 	class AMyGameModeBase* gameMode;
