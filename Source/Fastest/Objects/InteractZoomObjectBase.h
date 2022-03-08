@@ -24,6 +24,7 @@ public:
 
 	FVector ViewLocation;
 
+
 protected:
 	void ZoomIn(float Value);
 	void ZoomOut(float Value);

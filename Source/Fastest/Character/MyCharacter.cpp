@@ -109,7 +109,7 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		bool bHitRet = GetWorld()->LineTraceSingleByChannel(hitResult, \
 			worldLoc, \
-			worldLoc + worldDir * 200, \
+			worldLoc + worldDir * 250, \
 			ECollisionChannel::ECC_Visibility);
 
 		if(!FocusedActor)

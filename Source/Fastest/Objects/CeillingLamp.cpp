@@ -20,7 +20,7 @@ ACeillingLamp::ACeillingLamp()
 
 		Light = CreateDefaultSubobject<UPointLightComponent>(TEXT("LIGHT"));
 		Light->SetupAttachment(LampMesh);
-		Light->SetRelativeLocation(FVector(0.f, 0.f, -MeshSize.Z));
+		Light->SetRelativeLocation(FVector(0.f, 0.f, -MeshSize.Z - 30.f));
 		Light->Intensity = 2500.f;
 	}
 
@@ -33,7 +33,10 @@ ACeillingLamp::ACeillingLamp()
 
 void ACeillingLamp::BlinkLamp(float Value)
 {
-	Light->SetIntensity(2500.f * Value);
+	if(bOn)
+		Light->SetIntensity(2500.f * Value);
+	else
+		Light->SetIntensity(25.f);
 }
 
 void ACeillingLamp::Tick(float DeltaTime)
@@ -41,6 +44,18 @@ void ACeillingLamp::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
 	BlinkTimeline.TickTimeline(DeltaTime);
+}
+
+void ACeillingLamp::Off()
+{
+	bOn = false;
+	MLCGLOG_S(Display);
+}
+
+void ACeillingLamp::On()
+{
+	bOn = true;
+	MLCGLOG_S(Display);
 }
 
 void ACeillingLamp::BeginPlay()
