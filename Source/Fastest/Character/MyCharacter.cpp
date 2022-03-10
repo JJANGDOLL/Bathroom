@@ -103,6 +103,7 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		// CheckLineTrace
 		FVector worldLoc = CameraManager->GetCameraLocation();
+		MLCGLOG(Display, TEXT("%s"), *worldLoc.ToString());
 		FVector worldDir = CameraManager->GetActorForwardVector();
 
 		//PlayerController->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, worldLoc, worldDir);

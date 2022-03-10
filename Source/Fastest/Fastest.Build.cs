@@ -11,5 +11,7 @@ public class Fastest : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
 
 		PrivateIncludePaths.Add("Fastest");
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+
 	}
 }

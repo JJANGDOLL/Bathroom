@@ -3,11 +3,13 @@
 
 #include "MyGameModeBase.h"
 #include "Character/MyCharacter.h"
+#include "GameDetail/MyHUD.h"
 #include "Fastest.h"
 
 AMyGameModeBase::AMyGameModeBase()
 {
 	DefaultPawnClass = AMyCharacter::StaticClass();
+    HUDClass = AMyHUD::StaticClass();
 
     PrimaryActorTick.bCanEverTick = true;
 }
