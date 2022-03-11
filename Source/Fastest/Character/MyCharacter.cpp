@@ -71,6 +71,16 @@ void AMyCharacter::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 }
 
+void AMyCharacter::DisableMovement()
+{
+	bMove = false;
+}
+
+void AMyCharacter::EnableMovement()
+{
+	bMove = true;
+}
+
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
@@ -103,7 +113,6 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		// CheckLineTrace
 		FVector worldLoc = CameraManager->GetCameraLocation();
-		MLCGLOG(Display, TEXT("%s"), *worldLoc.ToString());
 		FVector worldDir = CameraManager->GetActorForwardVector();
 
 		//PlayerController->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, worldLoc, worldDir);
@@ -249,7 +258,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AMyCharacter::MoveForward(float Value)
 {
-	if((Controller != NULL) && (Value != 0.0f) && (!bZoom))
+	if((Controller != NULL) && (Value != 0.0f) && (!bZoom) && bMove)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -263,7 +272,7 @@ void AMyCharacter::MoveForward(float Value)
 
 void AMyCharacter::MoveLeft(float Value)
 {
-	if((Controller != NULL) && (Value != 0.0f) && (!bZoom))
+	if((Controller != NULL) && (Value != 0.0f) && (!bZoom) && bMove)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();

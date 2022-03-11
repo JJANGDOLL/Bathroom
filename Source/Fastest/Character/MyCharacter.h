@@ -49,6 +49,9 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	void DisableMovement();
+	void EnableMovement();
+
 protected:
 	void MoveForward(float Value);
 	void MoveLeft(float Value);
@@ -70,5 +73,5 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	AActor* FocusedActor;
-
+	bool bMove = true;
 };

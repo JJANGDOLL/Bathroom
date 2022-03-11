@@ -1,10 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+//WidgetBlueprint'/Game/UI/UI_ExitDoor.UI_ExitDoor'
 
 #include "ExitDoor.h"
 #include "Fastest.h"
 #include "Slate/SceneViewport.h"
 #include "Character/MyCharacter.h"
+#include "Components/Widget.h"
+#include "GameDetail/UIBase.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 AExitDoor::AExitDoor()
 {
@@ -21,78 +25,24 @@ AExitDoor::AExitDoor()
 void AExitDoor::OnSelected()
 {
     MLCGLOG_S(Display);
-
-    bView = !bView;
-
     if(bView)
     {
-        GEngine->GameViewport->AddViewportWidgetForPlayer(GetWorld()->GetFirstLocalPlayerFromController(), Widget.ToSharedRef(), 1);
         FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
         FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+        if(ExitUI != nullptr)
+        {
+            exitUIInst = Cast<UUIBase>(CreateWidget(GetWorld()->GetFirstPlayerController(), ExitUI));
+            exitUIInst->AddToViewport();
+        }
+        AMyCharacter* myPawn = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+        myPawn->DisableMovement();
         GetWorld()->GetFirstPlayerController()->SetMouseLocation(ViewportCenter.X, ViewportCenter.Y);
         GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
         GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
-    }
-    else
-    {
-        GEngine->GameViewport->RemoveViewportWidgetForPlayer(GetWorld()->GetFirstLocalPlayerFromController(), Widget.ToSharedRef());
-        GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
-        GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
     }
 }
 
 void AExitDoor::BeginPlay()
 {
     Super::BeginPlay();
-
-    
-    Widget = SNew(SVerticalBox)
-        + SVerticalBox::Slot()
-        .HAlign(HAlign_Center)
-        .VAlign(VAlign_Center)
-        [
-            SNew(SHorizontalBox)
-            + SHorizontalBox::Slot()
-        .Padding(5, 5)
-        [
-            SNew(SButton)
-            [
-                SNew(STextBlock)
-                .Text(FText::FromString(TEXT("1")))
-            ]
-
-        ]
-    + SHorizontalBox::Slot()
-        .Padding(5, 5)
-        [
-            SNew(SButton)
-            [
-                SNew(STextBlock)
-                .Text(FText::FromString(TEXT("2")))
-            ]
-        ]
-    + SHorizontalBox::Slot()
-        .Padding(5, 5)
-        [
-            SNew(SButton)
-            [
-                SNew(STextBlock)
-                .Text(FText::FromString(TEXT("3")))
-            ]
-        ]
-        ]
-    + SVerticalBox::Slot()
-        [
-            SNew(SHorizontalBox)
-            + SHorizontalBox::Slot()
-        .Padding(5, 5)
-        [
-            SNew(SButton)
-            [
-                SNew(STextBlock)
-                .Text(FText::FromString(TEXT("BACK")))
-            ]
-
-        ]
-        ];
 }

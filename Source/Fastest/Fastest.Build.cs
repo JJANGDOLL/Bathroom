@@ -8,10 +8,9 @@ public class Fastest : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "UMG" });
 
 		PrivateIncludePaths.Add("Fastest");
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-
 	}
 }
