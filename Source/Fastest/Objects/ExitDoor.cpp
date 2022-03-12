@@ -25,6 +25,9 @@ AExitDoor::AExitDoor()
 void AExitDoor::OnSelected()
 {
     MLCGLOG_S(Display);
+
+    bView = !bView;
+
     if(bView)
     {
         FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());

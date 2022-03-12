@@ -308,6 +308,8 @@ void AMyCharacter::ToggleCrouch()
 
 void AMyCharacter::FocusedActorClick()
 {
+	if(bZoom) return;
+
 	if(!::IsValid(FocusedActor)) return;
 #ifdef __DEV_DEBUG__
     MLCGLOG(Display, TEXT("%s"), *FocusedActor->GetName());

@@ -6,8 +6,6 @@
 #include "Objects/InteractActObjectBase.h"
 #include "ExitDoor.generated.h"
 
-
-
 UCLASS()
 class FASTEST_API AExitDoor : public AInteractActObjectBase
 {

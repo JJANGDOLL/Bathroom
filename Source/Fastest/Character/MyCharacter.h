@@ -50,6 +50,8 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	void DisableMovement();
+
+	UFUNCTION(BlueprintCallable)
 	void EnableMovement();
 
 protected:
