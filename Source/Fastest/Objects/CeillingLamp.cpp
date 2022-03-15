@@ -23,7 +23,7 @@ ACeillingLamp::ACeillingLamp()
 		Light = CreateDefaultSubobject<UPointLightComponent>(TEXT("LIGHT"));
 		Light->SetupAttachment(LampMesh);
 		Light->SetRelativeLocation(FVector(0.f, 0.f, -MeshSize.Z - 30.f));
-		Light->Intensity = 2500.f;
+		Light->Intensity = 500.f;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> CF_BLINK(TEXT("CurveFloat'/Game/Timeline/TL_Blink.TL_Blink'"));
@@ -43,9 +43,9 @@ ACeillingLamp::ACeillingLamp()
 void ACeillingLamp::BlinkLamp(float Value)
 {
 	if(bOn)
-		Light->SetIntensity(2500.f * Value);
+		Light->SetIntensity(500.f * Value);
 	else
-		Light->SetIntensity(25.f);
+		Light->SetIntensity(1.f);
 }
 
 void ACeillingLamp::Tick(float DeltaTime)
