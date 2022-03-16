@@ -36,7 +36,7 @@ public:
 	UPROPERTY(VisibleInstanceOnly, Category = Lamp, Meta = (AllowPrivateAccess = true))
 	class UPointLightComponent* Light;
 
-	UPROPERTY(VisibleInstanceOnly, Category=Lamp, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditInstanceOnly, Category=Lamp, Meta = (AllowPrivateAccess = true))
 	bool bSwitch = true;
 
 	UPROPERTY(EditInstanceOnly, Category = Lamp, Meta = (AllowPrivateAccess = true))

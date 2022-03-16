@@ -42,6 +42,9 @@ ACeillingLamp::ACeillingLamp()
 
 void ACeillingLamp::BlinkLamp(float Value)
 {
+	if(!bSwitch)
+		return;
+
 	if(bOn)
 		Light->SetIntensity(500.f * Value);
 	else

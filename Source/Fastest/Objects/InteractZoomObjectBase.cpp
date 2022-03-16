@@ -15,7 +15,7 @@ AInteractZoomObjectBase::AInteractZoomObjectBase()
 
 void AInteractZoomObjectBase::OnSelected()
 {
-    OffFocused();
+    //OffFocused();
 
     FVector2D ViewportSize;
     FVector2D ViewportCenter;
