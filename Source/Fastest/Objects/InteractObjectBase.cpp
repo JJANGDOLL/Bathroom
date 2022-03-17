@@ -11,10 +11,10 @@ AInteractObjectBase::AInteractObjectBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	CeilPoint = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CEIL"));
+	CeilPoint = CreateDefaultSubobject<USceneComponent>(TEXT("CEIL"));
 	RootComponent = CeilPoint;
 
-	CenterPoint = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CENTER"));
+	CenterPoint = CreateDefaultSubobject<USceneComponent>(TEXT("CENTER"));
 	CenterPoint->SetupAttachment(CeilPoint);
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
