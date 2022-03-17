@@ -4,6 +4,7 @@
 #include "MyGameModeBase.h"
 #include "Character/MyCharacter.h"
 #include "GameDetail/MyHUD.h"
+#include "GameDetail/PPZoomVolume.h"
 #include "Fastest.h"
 
 AMyGameModeBase::AMyGameModeBase()
@@ -12,6 +13,8 @@ AMyGameModeBase::AMyGameModeBase()
     HUDClass = AMyHUD::StaticClass();
 
     PrimaryActorTick.bCanEverTick = true;
+
+
 }
 
 void AMyGameModeBase::Tick(float DeltaSeconds)
@@ -19,5 +22,13 @@ void AMyGameModeBase::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 
     PlayedTime += DeltaSeconds;
+}
+
+void AMyGameModeBase::BeginPlay()
+{
+    Super::BeginPlay();
+
+    FTransform tempLoc;
+    PPVolume = GetWorld()->SpawnActor<APPZoomVolume>(APPZoomVolume::StaticClass(), tempLoc);
 }
 

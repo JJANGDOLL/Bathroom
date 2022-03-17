@@ -21,6 +21,13 @@ public:
 
 	FORCEINLINE float GetPlayedTime() { return PlayedTime; }
 
+	class APPZoomVolume* PPVolume;
+	class APPZoomVolume* GetPostProcess() { return PPVolume; }
+
 private:
 	float PlayedTime = 0.f;
+
+protected:
+	virtual void BeginPlay() override;
+
 };

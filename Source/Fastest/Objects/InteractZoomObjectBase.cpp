@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/UnrealMathVectorCommon.h"
+#include "GameDetail/PPZoomVolume.h"
+#include "GameDetail/MyGameModeBase.h"
 
 AInteractZoomObjectBase::AInteractZoomObjectBase()
     : AInteractObjectBase()
@@ -16,6 +18,8 @@ AInteractZoomObjectBase::AInteractZoomObjectBase()
 void AInteractZoomObjectBase::OnSelected()
 {
     //OffFocused();
+
+    Cast<AMyGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPostProcess()->ZoomIn();
 
     FVector2D ViewportSize;
     FVector2D ViewportCenter;
@@ -43,6 +47,8 @@ void AInteractZoomObjectBase::OnSelected()
 void AInteractZoomObjectBase::UnSelected()
 {
     OnFocused();
+    Cast<AMyGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPostProcess()->ZoomOut();
+
     SmoothTimeline.Reverse();
 }
 
