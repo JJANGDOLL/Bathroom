@@ -17,8 +17,11 @@ class FASTEST_API AMyGameModeBase : public AGameModeBase
 public:
 	AMyGameModeBase();
 
-	//UPROPERTY(VisibleDefaultsOnly)
-	//TArray<FText> Passwd;
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FText> Passwd;
+
+	UPROPERTY(EditInstanceOnly)
+	bool bSwitch = false;
 
 	virtual void Tick(float DeltaSeconds) override;
 

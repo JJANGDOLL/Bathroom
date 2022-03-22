@@ -202,7 +202,7 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		}
 #ifdef __DEV_DEBUG__
-		DrawDebugLine(GetWorld(), worldLoc, worldLoc + worldDir * 300, FColor::Red, false, 0.5f, 10.f);
+		//DrawDebugLine(GetWorld(), worldLoc, worldLoc + worldDir * 300, FColor::Red, false, 0.5f, 10.f);
 #endif
 	}
 

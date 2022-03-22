@@ -9,7 +9,7 @@
 #include "Components/TimelineComponent.h"
 #include "InteractObjectBase.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class FASTEST_API AInteractObjectBase : public AActor, public IInteractable
 {
 	GENERATED_BODY()

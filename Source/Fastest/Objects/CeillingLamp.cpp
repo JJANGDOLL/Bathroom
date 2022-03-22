@@ -48,7 +48,7 @@ void ACeillingLamp::BlinkLamp(float Value)
 	if(bOn)
 		Light->SetIntensity(500.f * Value);
 	else
-		Light->SetIntensity(1.f);
+		Light->SetIntensity(0.f);
 }
 
 void ACeillingLamp::Tick(float DeltaTime)

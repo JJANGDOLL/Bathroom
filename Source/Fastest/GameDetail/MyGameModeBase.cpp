@@ -22,6 +22,15 @@ void AMyGameModeBase::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 
     PlayedTime += DeltaSeconds;
+
+    if(bSwitch)
+    {
+        GetWorldSettings()->LightmassSettings.EnvironmentIntensity = 0;
+    }
+    else
+    {
+        GetWorldSettings()->LightmassSettings.EnvironmentIntensity = 1;
+    }
 }
 
 void AMyGameModeBase::BeginPlay()
@@ -30,5 +39,10 @@ void AMyGameModeBase::BeginPlay()
 
     FTransform tempLoc;
     PPVolume = GetWorld()->SpawnActor<APPZoomVolume>(APPZoomVolume::StaticClass(), tempLoc);
+
+    Passwd.Add(FText::FromString("1"));
+    Passwd.Add(FText::FromString("2"));
+    Passwd.Add(FText::FromString("3"));
+    Passwd.Add(FText::FromString("4"));
 }
 
