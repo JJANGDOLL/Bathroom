@@ -17,6 +17,9 @@ class FASTEST_API AMyGameModeBase : public AGameModeBase
 public:
 	AMyGameModeBase();
 
+	//UPROPERTY(VisibleDefaultsOnly)
+	//TArray<FText> Passwd;
+
 	virtual void Tick(float DeltaSeconds) override;
 
 	FORCEINLINE float GetPlayedTime() { return PlayedTime; }
