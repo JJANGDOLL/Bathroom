@@ -7,20 +7,13 @@
 #include "Curves/CurveFloat.h"
 #include "Components/TimelineComponent.h"
 #include "Interfaces/Switch.h"
+#include "Enums/FastestTypes.h"
 #include "CeillingLamp.generated.h"
 
 /**
  * 
  */
-UENUM()
-namespace EObjectBlink
-{
-	enum Type
-	{
-		NORMAL UMETA(DisplayName = "NORMAL"),
-		CRAZY UMETA(DisplayName = "CRAZY")
-	};
-}
+
 
 UCLASS()
 class FASTEST_API ACeillingLamp : public AWorldObjectBase, public ISwitch

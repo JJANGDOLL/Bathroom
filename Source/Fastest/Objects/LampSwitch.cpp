@@ -3,7 +3,7 @@
 
 #include "LampSwitch.h"
 #include "Fastest.h"
-#include "CeillingLamp.h"
+#include "Objects/WorldLightBase.h"
 #include "Interfaces/Switch.h"
 
 ALampSwitch::ALampSwitch()
@@ -22,7 +22,7 @@ ALampSwitch::ALampSwitch()
 void ALampSwitch::OnSelected()
 {
 	MLCGLOG_S(Display);
-	for(ACeillingLamp* lamp : Lamps)
+	for(AWorldLightBase* lamp : Lamps)
 	{
 		ISwitch* swt = Cast<ISwitch>(lamp);
 

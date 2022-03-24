@@ -18,7 +18,7 @@ public:
 	ALampSwitch();
 
 	UPROPERTY(EditInstanceOnly, Category=LampSwitch)
-	class ACeillingLamp* Lamps[2];
+	TArray<class AWorldLightBase*> Lamps;
 
 	virtual void OnSelected() override;
 
