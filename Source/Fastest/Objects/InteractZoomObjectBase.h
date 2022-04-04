@@ -43,10 +43,16 @@ public:
 	FRotator InspectionBeginRot;
 
 	FVector InspectionPivotLoc;
+	FVector InteractPivotSize;
+
+
 
 	bool bTaking;
 
 	void RotateActor(float Value);
+
+
+	virtual void ZoomFinished() override;
 
 protected:
 	void ZoomIn(float Value);

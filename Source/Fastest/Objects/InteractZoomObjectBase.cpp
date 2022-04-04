@@ -50,6 +50,9 @@ AInteractZoomObjectBase::AInteractZoomObjectBase()
     bTaking = false;
 
     InputComponent = CreateDefaultSubobject<UInputComponent>("InputComponent");
+
+    InspectionPivotLoc = FVector(0.f, 0.f, 8.5f);
+    InteractPivotSize = FVector(0.7f, 0.7f, 0.7f);
 }
 
 void AInteractZoomObjectBase::OnSelected()
@@ -98,7 +101,7 @@ void AInteractZoomObjectBase::UnSelected()
     Cast<AMyGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPostProcess()->ZoomOut();
 
     CurrentTransform = GetActorTransform();
-    PivotCurrentTransform = InteractPivot->GetComponentTransform();
+    PivotCurrentTransform = InteractPivot->GetRelativeTransform();
     CurrentSubLoc = InteractActor->GetRelativeLocation();
 
     SmoothTimeline.ReverseFromEnd();
@@ -118,13 +121,16 @@ void AInteractZoomObjectBase::SmoothInteract(float Value)
 
     SetActorTransform(UKismetMathLibrary::TLerp(t1, t2, Value));
 
-    FVector v1 = (AnimDir == ETimelineDirection::Forward ? PivotCurrentTransform.GetLocation() : FVector(0.f, 0.f, 0.f));
+    FVector v1 = (AnimDir == ETimelineDirection::Forward ? FVector(0.f, 0.f, 0.f) : PivotCurrentTransform.GetLocation());
     FVector v1r = FMath::Lerp(FVector(0.f, 0.f, 0.f), v1, Value);
 
     FRotator r1 = (AnimDir == ETimelineDirection::Forward ? InspectionBeginRot : PivotCurrentTransform.Rotator());
     FRotator r1r = FMath::Lerp(FRotator(0.f, 0.f, 0.f), r1, Value);
 
-    FTransform t3 = FTransform(r1r, v1r, FVector(1.f, 1.f, 1.f));
+    FVector s1 = (AnimDir == ETimelineDirection::Forward ? InteractPivotSize : FVector(1.f, 1.f, 1.f));
+    FVector s1r = FMath::Lerp(FVector(1.f, 1.f, 1.f), s1, Value);
+
+    FTransform t3 = FTransform(r1r, v1r, s1r);
 
     InteractPivot->SetRelativeTransform(t3);
 
@@ -138,6 +144,13 @@ void AInteractZoomObjectBase::RotateActor(float Value)
     FRotator rot = InteractPivot->GetComponentTransform().Rotator() + FRotator(0.f, 0.f, Value);
 
     //InteractPivot->SetRelativeRotation(rot);
+}
+
+void AInteractZoomObjectBase::ZoomFinished()
+{
+    MLCGLOG_S(Display);
+
+    ZoomCapture->bCaptureEveryFrame = true;
 }
 
 void AInteractZoomObjectBase::ZoomIn(float Value)

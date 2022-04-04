@@ -43,6 +43,11 @@ void AInteractObjectBase::SmoothInteract(float Value)
 	MLCGLOG_S(Display);
 }
 
+void AInteractObjectBase::ZoomFinished()
+{
+
+}
+
 // Called when the game starts or when spawned
 void AInteractObjectBase::BeginPlay()
 {
@@ -51,6 +56,8 @@ void AInteractObjectBase::BeginPlay()
 	OriginLocation = GetActorLocation();
 	OriginRotator = GetActorRotation();
 	GetActorBounds(false, Origin, BoxExtend);
+
+	FOnTimelineEventStatic onTimelineFinishedCallback;
 
 	if(SmoothCurve)
 	{
@@ -62,6 +69,9 @@ void AInteractObjectBase::BeginPlay()
 
 		SmoothTimeline.SetPropertySetObject(this);
 		SmoothTimeline.SetDirectionPropertyName(FName("AnimDir"));
+
+		onTimelineFinishedCallback.BindUFunction(this, FName(TEXT("ZoomFinished")));
+		SmoothTimeline.SetTimelineFinishedFunc(onTimelineFinishedCallback);
 	}
 }
 

@@ -36,6 +36,9 @@ public:
 	UFUNCTION()
 	virtual void SmoothInteract(float Value);
 
+	UFUNCTION()
+	virtual void ZoomFinished();
+
 	UCurveFloat* SmoothCurve;
 	FTimeline SmoothTimeline;
 	float SmoothTimelineLength;
