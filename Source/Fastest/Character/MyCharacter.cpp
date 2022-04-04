@@ -12,6 +12,11 @@
 #include "Enums/FastestTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/PlayerCameraManager.h"
+#include "GameDetail/UIBase.h"
+#include "Components/ChildActorComponent.h"
+#include "GameDetail/ActEngine.h"
+#include "Utils/MyUtils.h"
+#include "Objects/InteractZoomObjectBase.h"
 
 AMyCharacter::AMyCharacter()
 {
@@ -36,26 +41,22 @@ AMyCharacter::AMyCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 
 	GetCapsuleComponent()->SetCapsuleRadius(17.f);
+
+	ActEngineClass = AActEngine::StaticClass();
+
+	ActEngine = CreateDefaultSubobject<UChildActorComponent>(TEXT("ActEngine"));
+	ActEngine->SetChildActorClass(ActEngineClass);
+	ActEngine->SetupAttachment(FollowCamera);
 }
 
 void AMyCharacter::AddControllerPitchInput(float Val)
 {
-	if(!bZoom)
-		Super::AddControllerPitchInput(Val);
-	else
-	{
-		FocusedActor->AddActorLocalRotation(FQuat(FRotator(Val, 0, 0)));
-	}
+	Super::AddControllerPitchInput(Val);
 }
 
 void AMyCharacter::AddControllerYawInput(float Val)
 {
-	if(!bZoom)
-		Super::AddControllerYawInput(Val);
-	else
-	{
-		FocusedActor->AddActorLocalRotation(FQuat(FRotator(0, Val, 0)));
-	}
+	Super::AddControllerYawInput(Val);
 }
 
 void AMyCharacter::SetCrouch(float Value)
@@ -100,6 +101,9 @@ void AMyCharacter::BeginPlay()
 		CrouchCallback.BindUFunction(this, FName("SetCrouch"));
 		CrouchTimeline.AddInterpFloat(CrouchCurve, CrouchCallback);
 	}
+
+	ActEngine->CreateChildActor();
+
 }
 
 // Called every frame
@@ -228,6 +232,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	FInputActionKeyMapping rClickKey("RClick", EKeys::RightMouseButton, 0, 0, 0, 0);
 	FInputActionKeyMapping resetKey("Reset", EKeys::R, 0, 0, 0, 0);
 	FInputActionKeyMapping crouchKey("Crouch", EKeys::C, 0, 0, 0, 0);
+	FInputActionKeyMapping tabKey("Tab", EKeys::Tab, 0, 0, 0, 0);
 
 	PlayerInputComponent->BindAxis("Forward", this, &AMyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Back", this, &AMyCharacter::MoveForward);
@@ -235,12 +240,14 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("Left", this, &AMyCharacter::MoveLeft);
 	PlayerInputComponent->BindAxis("LookUp", this, &AMyCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Turn", this, &AMyCharacter::AddControllerYawInput);
+
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMyCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMyCharacter::StopJumping);
 	PlayerInputComponent->BindAction("LClick", IE_Pressed, this, &AMyCharacter::FocusedActorClick);
 	PlayerInputComponent->BindAction("RClick", IE_Pressed, this, &AMyCharacter::UnfocusedActorClick);
 	PlayerInputComponent->BindAction("Reset", IE_Pressed, this, &AMyCharacter::ResetFocusedActorRot);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMyCharacter::ToggleCrouch);
+	PlayerInputComponent->BindAction("Tab", IE_Pressed, this, &AMyCharacter::ToggleInventory);
 
 
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(forwardKey);
@@ -254,35 +261,25 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(rClickKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(resetKey);
 	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(crouchKey);
+	GetWorld()->GetFirstPlayerController()->PlayerInput->AddActionMapping(tabKey);
 }
 
 void AMyCharacter::MoveForward(float Value)
 {
-	if((Controller != NULL) && (Value != 0.0f) && (!bZoom) && bMove)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	AddMovementInput(Direction, Value);
 }
 
 void AMyCharacter::MoveLeft(float Value)
 {
-	if((Controller != NULL) && (Value != 0.0f) && (!bZoom) && bMove)
-	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
-	}
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	AddMovementInput(Direction, Value);
 }
 
 void AMyCharacter::ToggleCrouch()
@@ -306,6 +303,11 @@ void AMyCharacter::ToggleCrouch()
 
 }
 
+void AMyCharacter::ToggleInventory()
+{
+	MLCGLOG_S(Display);
+}
+
 void AMyCharacter::FocusedActorClick()
 {
 	if(bZoom) return;
@@ -326,7 +328,7 @@ void AMyCharacter::FocusedActorClick()
 			break;
 		case EObjectInteract::ZOOM:
 			interactObject->OnSelected();
-			bZoom = true;
+			//bZoom = true;
 			break;
 		case EObjectInteract::ACT:
 			interactObject->OnSelected();
@@ -338,6 +340,8 @@ void AMyCharacter::FocusedActorClick()
 
 void AMyCharacter::UnfocusedActorClick()
 {
+	return;
+
 	if(!bZoom) return;
 
 	IInteractable* interactObject = Cast<IInteractable>(FocusedActor);
@@ -355,8 +359,6 @@ void AMyCharacter::UnfocusedActorClick()
 			interactObject->UnSelected();
 			break;
 	}
-
-
 }
 
 void AMyCharacter::ResetFocusedActorRot()

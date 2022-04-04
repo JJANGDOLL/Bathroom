@@ -25,6 +25,7 @@ public:
 	UPROPERTY(VisibleInstanceOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+
 	APlayerController* PlayerController;
 
 	FORCEINLINE FVector2D GetViewportCenter() { return ViewportCenter; };
@@ -54,10 +55,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void EnableMovement();
 
+	UPROPERTY(VisibleInstanceOnly)
+	class UChildActorComponent* ActEngine;
+
+	UPROPERTY()
+	TSubclassOf<class AActEngine> ActEngineClass;
+
+
+
 protected:
 	void MoveForward(float Value);
 	void MoveLeft(float Value);
 	void ToggleCrouch();
+	void ToggleInventory();
 
 	void FocusedActorClick();
 	void UnfocusedActorClick();

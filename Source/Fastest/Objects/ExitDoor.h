@@ -18,6 +18,7 @@ public:
 
 	UPROPERTY(EditInstanceOnly, Category="ExitDoor")
 	TSubclassOf<class UUIBase> ExitUI;
+
 	class UUIBase* exitUIInst;
 
 protected:

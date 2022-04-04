@@ -35,8 +35,6 @@ void AMyHUD::DrawHUD()
     FCanvasTileItem TileItem(CrosshairDrawPosition, CrosshairTex->Resource, CrosshairSize, FLinearColor::White);
     TileItem.BlendMode = SE_BLEND_Translucent;
     Canvas->DrawItem(TileItem);
-
-    MLCGLOG_S(Display);
 }
 
 void AMyHUD::BeginPlay()

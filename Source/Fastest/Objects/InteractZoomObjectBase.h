@@ -24,6 +24,30 @@ public:
 
 	FVector ViewLocation;
 
+	TSubclassOf<class UUIBase> InventoryWidgetClass;
+	class UUIBase* InventoryUiInst;
+
+	UPROPERTY(VisibleInstanceOnly)
+	class USceneCaptureComponent2D* ZoomCapture;
+
+	class UTextureRenderTarget2D* InteractTex;
+
+	UPROPERTY(VisibleInstanceOnly)
+	class USpotLightComponent* InteractLight;
+
+	class AActEngine* ActEngine;
+	FTransform WorldTransform;
+	FTransform CurrentTransform;
+	FTransform PivotCurrentTransform;
+	FVector CurrentSubLoc;
+	FRotator InspectionBeginRot;
+
+	FVector InspectionPivotLoc;
+
+	bool bTaking;
+
+	void RotateActor(float Value);
+
 protected:
 	void ZoomIn(float Value);
 	void ZoomOut(float Value);
@@ -31,3 +55,4 @@ protected:
 	virtual void BeginPlay() override;
 
 };
+

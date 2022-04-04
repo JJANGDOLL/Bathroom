@@ -18,14 +18,11 @@ public:
 	// Sets default values for this actor's properties
 	AInteractObjectBase();
 
-	UPROPERTY(VisibleInstanceOnly, Category = Mesh, Meta = (AllowPrivateAccess = true))
-	class UStaticMeshComponent* Mesh;
+	UPROPERTY(VisibleInstanceOnly, Category = InteractMesh, Meta = (AllowPrivateAccess = true))
+	class UStaticMeshComponent* InteractMesh;
 
-	UPROPERTY(VisibleInstanceOnly, Category = Mesh, Meta = (AllowPrivateAccess = true))
-	class USceneComponent* CeilPoint;
-
-	UPROPERTY(VisibleInstanceOnly, Category = Mesh, Meta = (AllowPrivateAccess = true))
-	class USceneComponent* CenterPoint;
+	UPROPERTY(VisibleInstanceOnly, Category = InteractMesh, Meta = (AllowPrivateAccess = true))
+	class USceneComponent* InteractActor;
 
 	FVector OriginLocation;
 	FRotator OriginRotator;
@@ -43,7 +40,16 @@ public:
 	FTimeline SmoothTimeline;
 	float SmoothTimelineLength;
 
+	UPROPERTY()
+	TEnumAsByte<ETimelineDirection::Type> AnimDir = ETimelineDirection::Forward;
+
 	bool bSwitch = false;
+
+	UPROPERTY(VisibleInstanceOnly, Category = InteractMesh, Meta = (AllowPrivateAccess = true))
+	class UBillboardComponent* Billboard;
+
+	UPROPERTY(VisibleInstanceOnly, Category = InteractMesh, Meta = (AllowPrivateAccess = true))
+	class UBillboardComponent* InteractPivot;
 
 protected:
 	// Called when the game starts or when spawned

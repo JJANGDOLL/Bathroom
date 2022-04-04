@@ -10,10 +10,10 @@ AToiletBoothDoor2::AToiletBoothDoor2()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_FE(TEXT("StaticMesh'/Game/SwimmingPool/Meshes/SM_CubicleDoor.SM_CubicleDoor'"));
 	if(SM_FE.Succeeded())
 	{
-		Mesh->SetStaticMesh(SM_FE.Object);
-		MeshSize = Mesh->GetStaticMesh()->GetBoundingBox().GetSize();
-		CenterPoint->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
-		OriginCollision = Mesh->GetCollisionEnabled();
+		InteractMesh->SetStaticMesh(SM_FE.Object);
+		MeshSize = InteractMesh->GetStaticMesh()->GetBoundingBox().GetSize();
+		InteractActor->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
+		OriginCollision = InteractMesh->GetCollisionEnabled();
 	}
 }
 

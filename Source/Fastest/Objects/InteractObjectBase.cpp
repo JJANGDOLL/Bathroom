@@ -3,29 +3,32 @@
 
 #include "InteractObjectBase.h"
 #include "Fastest.h"
+#include "Components/BillboardComponent.h"
 
-//CurveFloat'/Game/Timeline/TL_Zoom.TL_Zoom'
-
-// Sets default values
 AInteractObjectBase::AInteractObjectBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	CeilPoint = CreateDefaultSubobject<USceneComponent>(TEXT("CEIL"));
-	RootComponent = CeilPoint;
+	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+	Billboard->SetSprite(nullptr);
+	RootComponent = Billboard;
 
-	CenterPoint = CreateDefaultSubobject<USceneComponent>(TEXT("CENTER"));
-	CenterPoint->SetupAttachment(CeilPoint);
+	InteractPivot = CreateDefaultSubobject<UBillboardComponent>(TEXT("InteractPivot"));
+	InteractPivot->SetSprite(nullptr);
+	InteractPivot->SetupAttachment(RootComponent);
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
-	Mesh->SetupAttachment(CenterPoint);
+	InteractActor = CreateDefaultSubobject<USceneComponent>(TEXT("InteractActor"));
+	InteractActor->SetupAttachment(RootComponent);
+	InteractActor->SetHiddenInGame(true);
+
+	InteractMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("InteractMesh"));
+	InteractMesh->SetupAttachment(InteractActor);
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_FE(TEXT("StaticMesh'/Game/MMSupermarket/Props/Mesh/SM_ToiletPaper_Roll.SM_ToiletPaper_Roll'"));
 	if(SM_FE.Succeeded())
 	{
-		Mesh->SetStaticMesh(SM_FE.Object);
-		MeshSize = Mesh->GetStaticMesh()->GetBoundingBox().GetSize();
-		CenterPoint->SetRelativeLocation(FVector(0, 0, -(MeshSize.Z / 2)));
-		OriginCollision = Mesh->GetCollisionEnabled();
+		InteractMesh->SetStaticMesh(SM_FE.Object);
+		OriginCollision = InteractMesh->GetCollisionEnabled();
 	}
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> CF_ZOOM(TEXT("CurveFloat'/Game/Timeline/TL_Zoom.TL_Zoom'"));
@@ -56,18 +59,21 @@ void AInteractObjectBase::BeginPlay()
 
 		interactCallback.BindUFunction(this, FName("SmoothInteract"));
 		SmoothTimeline.AddInterpFloat(SmoothCurve, interactCallback);
+
+		SmoothTimeline.SetPropertySetObject(this);
+		SmoothTimeline.SetDirectionPropertyName(FName("AnimDir"));
 	}
 }
 
 
 void AInteractObjectBase::OffFocused()
 {
-	Mesh->SetRenderCustomDepth(false);
+	InteractMesh->SetRenderCustomDepth(false);
 }
 
 void AInteractObjectBase::OnFocused()
 {
-	Mesh->SetRenderCustomDepth(true);
+	InteractMesh->SetRenderCustomDepth(true);
 }
 
 //void AInteractObjectBase::ZoomIn(FVector ScreenCenter)
@@ -87,6 +93,8 @@ void AInteractObjectBase::OnFocused()
 void AInteractObjectBase::OnSelected()
 {
 	MLCGLOG_S(Warning);
+
+	
 }
 
 void AInteractObjectBase::UnSelected()

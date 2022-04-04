@@ -13,8 +13,6 @@ AMyGameModeBase::AMyGameModeBase()
     HUDClass = AMyHUD::StaticClass();
 
     PrimaryActorTick.bCanEverTick = true;
-
-
 }
 
 void AMyGameModeBase::Tick(float DeltaSeconds)
